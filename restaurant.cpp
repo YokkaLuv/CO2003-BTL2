@@ -1,7 +1,7 @@
 #include "main.h"
 class Restaurant;
 class HuffmanTree;
-class HashTable;
+class Hashing;
 class MinHeap;
 int MAXSIZE;
 //GOJO RESTAURANT ################################################################################################################
@@ -17,7 +17,7 @@ public:
 class BST {
 public:
     Hash* root;
-    queue<int> FIFO;
+    queue<int> datalog;
     BST() {
         root = nullptr;
     }
@@ -32,21 +32,20 @@ public:
             delete node;
         }
     }   
-    Hash* insertNode(Hash* node,int value) {
+    Hash* insertHash(Hash* node,int x) {
         if (!node)
-            return new Hash(value);
-
-        if (value < node->value)
-            node->left = insertNode(node->left, value);
+            return new Hash(x);
+        if (x < node->value)
+            node->left = insertHash(node->left, x);
         else 
-            node->right = insertNode(node->right, value);
+            node->right = insertHash(node->right, x);
 
         return node;
     }
 
     void insertBST(int value) {
-        FIFO.push(value);
-        root = insertNode(root,value);
+        datalog.push(value);
+        root = insertHash(root,value);
     }
     Hash* delRecur(Hash* a, int x) {
         if (a == nullptr) {
@@ -83,10 +82,10 @@ public:
         return current;
     }
     void deleteBST(){
-        if(!FIFO.empty()){
-            int x=FIFO.front();
-            FIFO.pop();
-            root=delRecur(root,x);
+        if(!datalog.empty()){
+            int x=datalog.front();
+            datalog.pop();
+            root = delRecur(root,x);
         }
     }
     void printInOrder(Hash * root) {
@@ -99,30 +98,32 @@ public:
 
 };
 
-class HashTable {
+class Hashing {
 public:
-    vector<BST> table;
-    HashTable() {
-        table.resize(MAXSIZE);
+    vector<BST> zone;
+    Hashing() {
+        zone.resize(MAXSIZE);
     }
 
     void insertHash(int value,int index) {
-
-       if(index<0 || index>=MAXSIZE)
+       if(index < 0 || index >= MAXSIZE)
             return ;
-        table[index].insertBST(value);
+        zone[index].insertBST(value);
     }
+
     void PrintBST(int index) {
-        if (index >= static_cast<int>(table.size()) ||index<0) {
+        if (index >= static_cast<int>(zone.size()) ||index < 0) {
             cerr << "Index out of range" << endl;
             return;
         }
-        table[index].printInOrder(table[index].root);
+        zone[index].printInOrder(zone[index].root);
 
     }
 };
 
 //END GOJO RESTAURANT ############################################################################################################
+
+//SUKUNA RESTAURANT ##############################################################################################################
 
 class ListNode {
     public:
@@ -248,7 +249,7 @@ class MinHeap {
         reHeapUp(k);
         reHeapDown(k);
     }
-    void deleteKhuvuc(){
+    void delNoClient(){
         for(size_t i=0;i<heap.size();i++){
             if(!heap[i].first){
                 heap[i]=heap.back();
@@ -281,10 +282,10 @@ class MinHeap {
     }
     int countNodes(ListNode* head) {
         int count = 0;
-        ListNode* current = head;
-        while (current) {
+        ListNode* sub = head;
+        while (sub) {
             count++;
-            current = current->next;
+            sub = sub->next;
         }
         return count;
     }
@@ -296,22 +297,28 @@ class MinHeap {
             i++;
         }
     }
-    void CLEAVEfake(int num,int j=0){
-            if(j>=static_cast<int>(heap.size()))
+    void printHeap(int num,int i = 0){
+            if(i >= static_cast<int>(heap.size()))
                 return ;
-            printNumCus(heap[j].first,heap[j].second,num);
-            CLEAVEfake(num,2*j+1);
-            CLEAVEfake(num,2*j+2);
+            printNumCus(heap[i].first ,heap[i].second ,num);
+            printHeap(num, 2*i+1);
+            printHeap(num, 2*i+2);
     }
 };
-class Node {
+
+//END SUKUNA RESTAURANT ##########################################################################################################
+
+//CLIENT TREE ####################################################################################################################
+
+struct Node {
   public:
   char c;
   int fre;
   Node *l,*r;
-  Node(char c,int fre,Node *left,Node *right):c(c),fre(fre),l(left),r(right){}
+  Node(char c ,int fre ,Node *left ,Node *right):c(c),fre(fre),l(left),r(right){}
 };
-struct CompareFreq {
+
+struct CompareFrequency {
     bool operator()(Node *left, Node *right) {
         if (left->fre == right->fre) {
             if((islower(left->c) && islower(right->c))|| (isupper(left->c) && isupper(right->c)))
@@ -321,8 +328,15 @@ struct CompareFreq {
         return left->fre > right->fre;
     }
 };
-class HuffmanTree{
 
+inline bool SortFrequency(const pair<Node*, int>& a, const pair<Node*, int>& b) {
+    if (a.first->fre == b.first->fre) {
+        return a.second < b.second;
+    }
+    return a.first->fre < b.first->fre;
+}
+
+class HuffmanTree{
     public:
     Node *treeH;
     unordered_map<char, string> huffhuff;
@@ -365,47 +379,50 @@ class HuffmanTree{
         if(!cur) return 0;
         return getHeightNode(cur->l)-getHeightNode(cur->r);
     }
-  Node *balancevip(Node *cur, int &rotate){
-      int balance=getBalance(cur);
-      if (balance > 1) {
-      rotate--;
-          if (getBalance(cur->l) >= 0) {
-              return rotateRight(cur);
-          } else {
-              cur->l = rotateLeft(cur->l);
-              return rotateRight(cur);
-          }
+  Node *balancevip(Node *cur) {
+    int balance = getBalance(cur);
+    if (balance > 1) {
+      if (getBalance(cur->l) >= 0) {
+       
+        return rotateRight(cur);
+      } else {
+        cur->l = rotateLeft(cur->l);
+        return rotateRight(cur);
       }
-      if (balance < -1) {
-      rotate--;
-          if (getBalance(cur->r) <= 0) {
-              return rotateLeft(cur);
-          } else {
-  
-              cur->r = rotateRight(cur->r);
-              return rotateLeft(cur);
-          }
+    }
+    if (balance < -1) {
+      if (getBalance(cur->r) <= 0) {
+        return rotateLeft(cur);
+      } else {
+        cur->r = rotateRight(cur->r);
+        return rotateLeft(cur);
       }
-      return cur;
+    }
+    return cur;
   }
-  Node* balanceTree(Node*& tree, int& rotate, bool& xxx) {
-      if (!tree || rotate < 0)
-          return nullptr;
-      if (rotate == 0)
-          return tree;
-      int balanceNum = getBalance(tree);
-  
-      while (abs(balanceNum) > 1) {
-          if (treeH->c != '\0') {
-              xxx = true;
-              return nullptr;
-          }
-          tree = balancevip(tree, rotate);
-          balanceNum = getBalance(tree);
-      }
-      tree->l = balanceTree(tree->l, rotate, xxx);
-      tree->r = balanceTree(tree->r, rotate, xxx);
+  Node *balanceTree(Node *&tree, int &rotate, bool &xxx) {
+    if (!tree || rotate < 0)
+      return nullptr;
+    if (rotate == 0)
       return tree;
+    int balanceNum = getBalance(tree);
+
+    while (abs(balanceNum) > 1) {
+      if (rotate == 0)
+        return tree;
+      if (treeH->c != '\0') {
+        xxx = true;
+        return nullptr;
+      }
+      tree = balancevip(tree);
+      
+      balanceNum = getBalance(tree);
+      rotate--;
+    }
+
+    tree->l = balanceTree(tree->l, rotate, xxx);
+    tree->r = balanceTree(tree->r, rotate, xxx);
+    return tree;
   }
     void encodetree(Node* root, string str){
         if(!root)
@@ -415,83 +432,59 @@ class HuffmanTree{
         encodetree(root->l,str+"0");
         encodetree(root->r,str+"1");
     }
-void printqueue(priority_queue<Node *,vector<Node *>,CompareFreq> ys){
+void printqueue(priority_queue<Node *,vector<Node *>,CompareFrequency> ys){
   while(!ys.empty()){
     cout<<ys.top()->c<<" "<<ys.top()->fre<<endl;
     ys.pop();
   }
 }
 void buildHuffman(string ss){
-  unordered_map<char,int> freq;
-  for(char c: ss)
+  unordered_map<char, int> freq;
+    for (char c : ss)
       freq[c]++;
-  priority_queue<Node *,vector<Node *>,CompareFreq> ys;
-  
-  for(pair<char,int> k: freq){
-      ys.push(new Node(k.first,k.second,nullptr,nullptr));
-  }
-   printqueue(ys);
-  int rot = 3;
+    
+    priority_queue<Node *, vector<Node *>, CompareFrequency> arr;
+   
+    for (pair<char, int> k : freq) {
+      arr.push(new Node(k.first, k.second, nullptr, nullptr));
+    }
 
-  while(ys.size()!=1){
+    vector<pair<Node *,int>> ys;
+    int thutu=0;
+    while (!arr.empty()) {
+      ys.push_back(make_pair(arr.top(),thutu++));
+      arr.pop();
+    }
+    while (ys.size() != 1) {
 
-      Node *left=ys.top();
-      ys.pop();
-      Node *right=ys.top();
-      ys.pop();
-      int sum=left->fre+right->fre;
-      Node *hasagi=new Node('\0',sum,left,right);
-      ys.push(hasagi);
-  } 
+      Node *left = ys[0].first;
+      ys.erase(ys.begin());
+      Node *right = ys[0].first;
+      ys.erase(ys.begin());
+      int sum = left->fre + right->fre;
+      Node *k = new Node('\0', sum, left, right); 
+      k->l=balancevip(k->l);
+      k->r=balancevip(k->r);
+      k=balancevip(k);
+      bool ok = 0;
+      int rot=3;
+      k=balanceTree(k,rot,ok);
+      if (ok)
+        return;
+      ys.push_back(make_pair(k,thutu++));
+      sort(ys.begin(), ys.end(), SortFrequency); 
+      
+    }
 
-  Node *tmp=ys.top();
-  treeH=tmp;
-  bool xxx=0;
-  treeH=balanceTree(tmp,rot,xxx); 
-  if(xxx) return ;
-  encodetree(treeH,"");
+    Node *tmp = ys[0].first;
+    treeH = tmp;
 
-          cout << "Huffman Codes are :\n" << endl;
-          for (auto pair: huffhuff) {
-              cout << pair.first << " " << pair.second << "\n";
-          }
+
+    encodetree(treeH, "");
       }
 };
 
-
-class Restaurant {
-
-  public:	
-  int RESULT;
-  HashTable gojo;
-    MinHeap sukuna;
-  Node *treeHand;
-    Restaurant() {
-        treeHand=nullptr;
-    }
-
-    void add(){
-        int ID=RESULT%MAXSIZE+1;
-      cout<<RESULT<<" "<<ID<<endl;
-        if(RESULT%2!=0){
-            gojo.insertHash(RESULT,ID-1);
-        }
-        else {
-            sukuna.addkhach(ID,RESULT);
-        }
-    }
-void caesar(unordered_map<char,int> ys,string &name){
-    for(size_t i=0;i<name.length();i++){
-        char c=name[i];
-        int shift=ys[c];
-        if (islower(c))
-            name[i]= char(int(c + shift - 'a') % 26 + 'a');
-        else if (isupper(c))
-            name[i]= char(int(c + shift - 'A') % 26 + 'A');
-    }
-}
-
-int binaryToDecimal(string binaryString) {
+int BinToDec(string binaryString) {
     int decimalValue = 0;
     int length = binaryString.length();
 
@@ -503,54 +496,72 @@ int binaryToDecimal(string binaryString) {
 
     return decimalValue;
 }
+
+//END CLIENT TREE ################################################################################################################
+
+//CORE CODE ######################################################################################################################
+
+class Restaurant {
+  public:	
+  int RESULT;
+  Hashing GOJO;
+  MinHeap SUKUNA;
+  Node *treeHand;
+    Restaurant() {
+        treeHand=nullptr;
+    }
+
+    void add(){
+        int ID=RESULT%MAXSIZE+1;
+      cout<<RESULT<<" "<<ID<<endl;
+        if(RESULT%2!=0){
+            GOJO.insertHash(RESULT,ID-1);
+        }
+        else {
+            SUKUNA.addkhach(ID,RESULT);
+        }
+    }
+void  CEASAR(unordered_map<char,int> a,string &name){
+    for(size_t i=0;i<name.length();i++){
+        char b = name[i];
+        int shift=a[b];
+        if (islower(b))
+            name[i]= char(int(b + shift - 'a') % 26 + 'a');
+        else if (isupper(b))
+            name[i]= char(int(b + shift - 'A') % 26 + 'A');
+    }
+}
+
 void LAPSE(string &name){
     HuffmanTree lor;
     RESULT=-999;
     unordered_set<char> uniqueChars;
     for (char ch : name) 
     uniqueChars.insert(ch);
-
     if (uniqueChars.size() < 3) {
         return ;
     }
-
-    unordered_map<char,int> ys;
+    unordered_map<char,int> a;
     for(char c: name)
-        ys[c]++;
-    caesar(ys,name);
+        a[c]++;
+    CEASAR(a,name);
     cout<<name<<endl;
     lor.buildHuffman(name);
-    
     if(lor.huffhuff.empty()) return ;
     treeHand=lor.treeH;
     string tmpstr="";
     for(char i:name){
         tmpstr+=lor.huffhuff[i];
     }
-    //cout<<tmpstr<<endl;
-  
     string result="";
     int j=0;
     while(j<10){
         result+=tmpstr[tmpstr.length()-1-j++];
     }
-    RESULT=binaryToDecimal(result);
-    //cout<<"RESULT la:"<<RESULT<<endl;
+    RESULT=BinToDec(result);
     if(RESULT!=-999)
         add();
 }
-void CLEAVEold(int num){
-        //cout<<"num la:"<<num<<endl;
-        sukuna.printLIFO(num);
-    }
-    void CLEAVE(int num){
-        sukuna.CLEAVEfake(num);
-    }
-    void LIMITLESS(int num){
-        //cout<<"num la:"<<num<<endl;
-        gojo.PrintBST(num-1);
-    }
-  
     // Function to calculate binomial coefficient
     long long tohop(int n, int k) {
         long long res = 1;
@@ -564,24 +575,21 @@ void CLEAVEold(int num){
 
     int Permutations(vector<int>& values) {
         if (values.empty()) return 1;
-
         int root = values.back();  // Last element is the root in post-order
         vector<int> leftSubTree, rightSubTree;
-
         for (size_t i = 0; i < values.size() - 1; ++i) {
             if (values[i] < root) leftSubTree.push_back(values[i]);
             else rightSubTree.push_back(values[i]);
         }
-
         int leftCount = Permutations(leftSubTree);
         int rightCount = Permutations(rightSubTree);
-
         // Calculate the number of ways to interleave left and right subtrees
         int totalNodes = leftSubTree.size() + rightSubTree.size();
         long long ways= tohop(totalNodes, leftSubTree.size());
 
         return leftCount * rightCount * ways;
     }
+
     void duyetPostOrder(Hash *root,vector<int> &ys){
         if(root){
             duyetPostOrder(root->left,ys);
@@ -589,68 +597,73 @@ void CLEAVEold(int num){
             ys.push_back(root->value);
         }
     }
+
     void KOKUSEN(){
-      if(gojo.table.empty())
+      if(GOJO.zone.empty())
           return ;
-        vector<int> ys;
-        for(int i=0;i<MAXSIZE;i++){
-            if(!gojo.table[i].root)
+        vector<int> a;
+        for(int i=0 ;i < MAXSIZE ;i++){
+            if(!GOJO.zone[i].root)
                 continue;
-            duyetPostOrder(gojo.table[i].root,ys);
-            int Y=Permutations(ys);
-            //cout<<"Khu vuc va Y ban dau:"<<i<<" "<<Y<<endl;
-            Y=Y%MAXSIZE;
-           // cout<<"Y la:"<<Y<<endl;
-            ys.clear();
-            for(int j=0;j<Y;j++){
-                if(gojo.table[i].root)
-                    gojo.table[i].deleteBST();
+            duyetPostOrder(GOJO.zone[i].root,a);
+            int Y=Permutations(a);
+            Y = Y % MAXSIZE;
+            a.clear();
+            for(int j = 0 ;j < Y ;j++){
+                if(GOJO.zone[i].root)
+                    GOJO.zone[i].deleteBST();
             }
         }
-
     }
 
     void KEITEIKEN(int num){
-      if(sukuna.heap.empty())
+      if(SUKUNA.heap.empty())
           return ;
-        vector<int> vlad;
-
-        for(size_t i=0;i<sukuna.heap.size();i++){
-            if(!sukuna.heap[i].first)
+        vector<int> log;
+        for(size_t i=0;i<SUKUNA.heap.size();i++){
+            if(!SUKUNA.heap[i].first)
                 break;
-            vlad.push_back(sukuna.heap[i].second);
+            log.push_back(SUKUNA.heap[i].second);
         }
-
-        for(size_t i=0;i<vlad.size()-1;i++){
-            for(size_t j=i+1;j<vlad.size();j++){
-                if((sukuna.countNodeID(vlad[i])>sukuna.countNodeID(vlad[j])) || (sukuna.countNodeID(vlad[i])==sukuna.countNodeID(vlad[j]) && sukuna.checkchange(vlad[i])<sukuna.checkchange(vlad[j])))
-                    swap(vlad[i],vlad[j]);
+        for(size_t i=0;i<log.size()-1;i++){
+            for(size_t j=i+1;j<log.size();j++){
+                if((SUKUNA.countNodeID(log[i])>SUKUNA.countNodeID(log[j])) || (SUKUNA.countNodeID(log[i])==SUKUNA.countNodeID(log[j]) && SUKUNA.checkchange(log[i])<SUKUNA.checkchange(log[j])))
+                    swap(log[i],log[j]);
             }
         }
-        // cout<<"Vlad la:";
-        // for(auto k: vlad)
-        //     cout<<k<<" ";
-        // cout<<endl;
         for(int i=0;i<num;i++){
             for(int j=0;j<num;j++){
-                sukuna.deleteFIFO(vlad[i]);
+                SUKUNA.deleteFIFO(log[i]);
             }
         }
-
-        sukuna.deleteKhuvuc();
+        SUKUNA.delNoClient();
     }
-    void printHuffman(Node* node) {
-        if (node != nullptr) {
-            printHuffman(node->l);
-            if(node->c!='\0')cout << node->c <<"\n";
-            else cout<<node->fre<<"\n";
-            printHuffman(node->r);
+
+    void printHuffman(Node* root) {
+        if (root != nullptr) {
+            printHuffman(root->l);
+            if(root->c!='\0')cout << root->c <<"\n";
+            else cout<<root->fre<<"\n";
+            printHuffman(root->r);
         }
     }
+    
     void HAND(){
         printHuffman(treeHand);
     }
+
+    void LIMITLESS(int num){
+        GOJO.PrintBST(num-1);
+    }
+
+    void CLEAVE(int num){
+        SUKUNA.printHeap(num);
+    }
 };
+
+//END CORE CODE ##################################################################################################################
+
+//READ FILE RUN ##################################################################################################################
 
 void simulate(string filename)
 {
