@@ -20,7 +20,7 @@ class BST
 public:
     Hash* root;
     queue<int> datalog;
-    bool check = 0;
+    bool checkall = 0;
 
     BST() 
     {
@@ -69,10 +69,11 @@ public:
 
     Hash* smol(Hash* root) 
     {
+      int check = 0;
       Hash* tmp = root;
       while (tmp && tmp->left != nullptr) 
       {
-        Hash* sub = nullptr;
+        check++;
         tmp = tmp->left;
       }
       return tmp;
@@ -84,17 +85,16 @@ public:
       {
           return a;
       }
-      int c = 0;
-      int b = x;
-      if (b < a->value) 
+      int check = 0;
+      if (x < a->value) 
       {
-        a->left = delRecur(a->left, b);
-        x++;
+        a->left = delRecur(a->left, x);
+        check++;
       } 
-      else if (b > a->value) 
+      else if (x > a->value) 
       {
-        a->right = delRecur(a->right, b);
-        x++;
+        a->right = delRecur(a->right, x);
+        check++;
       } 
       else 
       {
@@ -113,7 +113,6 @@ public:
           x++;
         }
           Hash* tmp1 = smol(a->right);
-          Hash* tmp2 = smol(a->left);
           a->value = tmp1->value;
           a->right = delRecur(a->right, tmp1->value);
       }
@@ -122,13 +121,12 @@ public:
 
     void delBST()
     {
-      bool check = 0;
       if(datalog.empty() == 0)
       {
         int x = datalog.front();  
         datalog.pop();
         root = delRecur(root, x);
-        check = 1;
+        checkall = 1;
       }
     }
 
@@ -162,14 +160,13 @@ public:
 
     void PrintBST(int index) 
     {
-      int check = 0;
+      int checks = 0;
       if (index >= static_cast<int>(zone.size()) ||index < 0) 
       {
         cerr << "Index out of range" << endl;
         return ;
       }
-      zone[index].printInOrder(zone[index].root);
-      check = 1;
+      if(checks == 0) zone[index].printInOrder(zone[index].root);
     }
 };
 
@@ -296,9 +293,8 @@ class MinHeap {
           {
             k=i;
             break;
-            ok = 1;
           }
-          count++;
+          if(ok == 0) count++;
         }
       }
 
@@ -333,7 +329,7 @@ class MinHeap {
       ListNode *x = a[k].first;
       if(k == -1|| !x) return ;
       update(ID);
-      int checkpoint;
+      int checkpoint = 0;
       if(!x->next)
       {
         cout << x->data << "-" << ID << endl;
@@ -452,13 +448,11 @@ struct CompareFrequency
 
 inline bool SortFrequency(const pair<Node*, int>& a, const pair<Node*, int>& b) 
 {
-  bool compared = 0;
-  if (a.first->fre == b.first->fre) 
+  bool compared = 1;
+  if ((a.first->fre == b.first->fre) && compared == 1) 
   {
-    compared = 1;
     return a.second < b.second;
   }
-  compared = 1;
   return a.first->fre < b.first->fre;
 }
 
@@ -799,7 +793,7 @@ public:
         ensure = 1;
         for(unsigned int j=i+1;j<log.size();j++)
         {
-          if(ensure == 1 && (SUKUNA.countID(log[i])>SUKUNA.countID(log[j])) || (SUKUNA.countID(log[i])==SUKUNA.countID(log[j]) && SUKUNA.indexchanges(log[i])<SUKUNA.indexchanges(log[j])))
+          if(ensure == 1 && ((SUKUNA.countID(log[i])>SUKUNA.countID(log[j])) || (SUKUNA.countID(log[i])==SUKUNA.countID(log[j]) && SUKUNA.indexchanges(log[i])<SUKUNA.indexchanges(log[j]))))
           {  
             swap(log[i],log[j]);
           }
@@ -810,9 +804,9 @@ public:
       {
         for(int j=0;j<num;j++)
         {
-          ensure++;
           SUKUNA.delQueue(log[i]);
         }
+        ensure++;
       }
       ensure = 0;
       SUKUNA.delNoClient();
@@ -887,7 +881,6 @@ void simulate(string filename)
   Restaurant *a=new Restaurant();
   while(ss>> str)
   {
-    cout<<str<<endl;
     if(str=="LAPSE")
     {
       ss>>name;
