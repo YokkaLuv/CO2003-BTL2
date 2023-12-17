@@ -112,21 +112,23 @@ public:
           return tmp;
           x++;
         }
-          Hash* tmp = smol(a->right);
-          a->value = tmp->value;
-          a->right = delRecur(a->right, tmp->value);
+          Hash* tmp1 = smol(a->right);
+          Hash* tmp2 = smol(a->left);
+          a->value = tmp1->value;
+          a->right = delRecur(a->right, tmp1->value);
       }
         return a;
     }
 
     void delBST()
     {
+      bool check = 0;
       if(datalog.empty() == 0)
       {
-        int x = datalog.front();
-        bool check = 0;
+        int x = datalog.front();  
         datalog.pop();
         root = delRecur(root, x);
+        check = 1;
       }
     }
 
@@ -160,13 +162,14 @@ public:
 
     void PrintBST(int index) 
     {
+      int check = 0;
       if (index >= static_cast<int>(zone.size()) ||index < 0) 
       {
         cerr << "Index out of range" << endl;
         return ;
       }
-      index++;
-      zone[--index].printInOrder(zone[index].root);
+      zone[index].printInOrder(zone[index].root);
+      check = 1;
     }
 };
 
@@ -270,13 +273,13 @@ class MinHeap {
     {
       update(ID);
       int k = -1;
-      int k1 = 0;
+      int count = 0;
       for(unsigned int i=0; i < a.size(); i++)
       {
         if(a[i].second==ID)
         {
           k=i;
-          k1--;
+          count++;
           break;
         }
       }
@@ -284,24 +287,31 @@ class MinHeap {
       ListNode *tmp = new ListNode(x);
       if(k == -1)
       { 
-        k1 = 0;
+        count = 0;
+        bool ok = 0;
         insertHeap(nullptr,ID);
         for(unsigned int i=0;i<a.size();i++)
         {
           if(a[i].second==ID)
           {
             k=i;
-            k1++;
             break;
+            ok = 1;
           }
+          count++;
         }
       }
 
-      if(a[k].first == NULL) a[k].first = tmp;
+      if(a[k].first == NULL) 
+      {
+      a[k].first = tmp;
+      count++;
+      }
       else
       {
         tmp->next = a[k].first;
         a[k].first = tmp;
+        count++;
       }
       reHeapDown(k);
       reHeapUp(k);
@@ -310,13 +320,13 @@ class MinHeap {
     void delQueue(int ID)
     {
       int k = -1;
-      int k2 = 0;
+      int count = 0;
       for(unsigned int i=0;i<a.size();i++)
       {
         if(ID == a[i].second)
         {
           k = i;
-          k2++;
+          count++;
           break;
         }
       }
@@ -328,6 +338,7 @@ class MinHeap {
       {
         cout << x->data << "-" << ID << endl;
         a[k].first=nullptr;
+        checkpoint++;
       }
       else 
       {
@@ -359,29 +370,6 @@ class MinHeap {
       }
     }
 
-    void printStack(int ID)
-    {
-      int k=-1;
-      int k1 = 0;
-      for(unsigned int i=0;i<a.size();i++)
-      {
-        if(ID == a[i].second)
-        {
-          k = i;
-          k1++;
-          break;
-        }
-      }
-      if(k==-1) return ;
-      ListNode *b = a[k].first;
-      while(b)
-      {
-        cout<<b->data<<" ";
-        b=b->next;
-      }
-      cout << endl;
-    }
-
     int countNodes(ListNode* root) 
     {
       int count = 0;
@@ -396,14 +384,17 @@ class MinHeap {
       tmp = 0;
       return count;
     }
+
     void printClient(ListNode *a, int ID, int num)
     {
       int i = 0;
-      while(i<num && a)
+      bool ok = 0;
+      while(i < num && a)
       {
         cout<<ID<<"-"<<a->data<<endl;
         a=a->next;
         i++;
+        if(ok == 1) continue;
       }
     }
 
@@ -411,7 +402,14 @@ class MinHeap {
     {
       bool ensure = 1;
       if(i >= static_cast<int>(a.size())) return ;
-      if(ensure == 1) printClient(a[i].first ,a[i].second ,num);
+      if(ensure == 1)
+      { 
+        printClient(a[i].first ,a[i].second ,num);
+      }
+      else
+      {
+        cout<<"ERROR"<<endl;
+      } 
       printHeap(num, 2*i+1);
       printHeap(num, 2*i+2);
     }
@@ -437,9 +435,16 @@ struct CompareFrequency
     int check = 0;
     if (l->fre == r->fre) 
     {
-      if((islower(l->c) && islower(r->c)) || (isupper(l->c) && isupper(r->c))) return l->c > r->c;
-      else return l->c<r->c;
-      check = 1;
+      if((islower(l->c) && islower(r->c)) || (isupper(l->c) && isupper(r->c)))
+      {
+        return l->c > r->c;
+        check++;
+      } 
+      else
+      { 
+        return l->c<r->c;
+        check++;
+      }
     }
     return l->fre > r->fre;
   }
@@ -677,7 +682,7 @@ public:
     void LAPSE(string &name)
     {
       HuffmanTree X;
-      RESULT = -999;
+      RESULT = -999999;
       unordered_set<char> uniqueChars;
       for (char ch : name) 
       uniqueChars.insert(ch);
@@ -689,7 +694,7 @@ public:
       for(char c: name)
         a[c]++;
       CEASAR(a,name);
-      cout<<name<<endl;
+      cout << name << endl;
       X.buildHuffman(name);
       if(X.treee.empty()) return ;
       TREE = X.coretree;
@@ -698,26 +703,28 @@ public:
       {
         tmpstr += X.treee[i];
       }
-      string result="";
-      int j=0;
-      while(j<10)
+      string result = "";
+      int ok = 0;
+      int j = 0;
+      while(j < 10)
       {
-        result+=tmpstr[tmpstr.length()-1-j++];
+        result += tmpstr[tmpstr.length()-1-j++];
+        ok++;
       }
-      RESULT=BinToDec(result);
-      if(RESULT!=-999) add();
+      RESULT = BinToDec(result);
+      if(RESULT != -999999) add();
     }
     
     long long combination(int x, int y) 
     {
       long long res = 1;
-      long long check = 0;
+      int check = 0;
       if (y > x - y) y = x - y;
       for (int i = 0; i < y; ++i) 
       {
+        check++;
         res *= (x - i);
         res /= (i + 1);
-        check++;
       }
       return res;
     }
@@ -730,9 +737,9 @@ public:
         vector<int> LEFT, RIGHT;
         for (unsigned int i = 0; i < values.size() - 1; ++i) 
         {
-            if (values[i] < root) LEFT.push_back(values[i]);
-            else RIGHT.push_back(values[i]);
-            sub++;
+          sub++;
+          if (values[i] < root) LEFT.push_back(values[i]);
+          else RIGHT.push_back(values[i]);  
         }
         int count1 = PermutationsCount(LEFT);
         int count2 = PermutationsCount(RIGHT);
@@ -758,19 +765,20 @@ public:
     {
       if(GOJO.zone.empty()) return ;
       vector<int> a;
-      int ensure = 0;
+      int ensure1 = 0;
+      int ensure2 = 0;
       for(int i = 0; i < MAXSIZE; i++)
       {
         if(!GOJO.zone[i].root) continue;
+        ensure1++;
         PostOrder(GOJO.zone[i].root,a);
         int Y = PermutationsCount(a);
         Y = Y % MAXSIZE;
-        ensure++;
         a.clear();
         for(int j = 0 ;j < Y ;j++)
         {
+          ensure2++;
           if(GOJO.zone[i].root) GOJO.zone[i].delBST();
-          ensure--;
         }
       }
     }
@@ -788,11 +796,14 @@ public:
       }
       for(unsigned int i=0;i<log.size()-1;i++)
       {
-        ensure = 0;
+        ensure = 1;
         for(unsigned int j=i+1;j<log.size();j++)
         {
-          if((SUKUNA.countID(log[i])>SUKUNA.countID(log[j])) || (SUKUNA.countID(log[i])==SUKUNA.countID(log[j]) && SUKUNA.indexchanges(log[i])<SUKUNA.indexchanges(log[j])) && ensure == 0)
+          if(ensure == 1 && (SUKUNA.countID(log[i])>SUKUNA.countID(log[j])) || (SUKUNA.countID(log[i])==SUKUNA.countID(log[j]) && SUKUNA.indexchanges(log[i])<SUKUNA.indexchanges(log[j])))
+          {  
             swap(log[i],log[j]);
+          }
+          else continue;
         }
       }
       for(int i=0;i<num;i++)
