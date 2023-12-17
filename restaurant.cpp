@@ -259,6 +259,13 @@ class MinHeap {
       return -1;
     }
 
+    void insertHeap(ListNode* element,int x) 
+    {
+      a.emplace_back(element,x);
+      int index = a.size() - 1;
+      reHeapUp(index);
+    }
+
     void addClient(int ID, int x)
     {
       update(ID);
@@ -375,13 +382,6 @@ class MinHeap {
       cout << endl;
     }
 
-    void insertHeap(ListNode* element,int x) 
-    {
-      a.emplace_back(element,x);
-      int index = a.size() - 1;
-      reHeapUp(index);
-    }
-
     int countNodes(ListNode* root) 
     {
       int count = 0;
@@ -437,7 +437,7 @@ struct CompareFrequency
     int check = 0;
     if (l->fre == r->fre) 
     {
-      if((islower(l->c) && islower(r->c))|| (isupper(l->c) && isupper(r->c))) return l->c > r->c;
+      if((islower(l->c) && islower(r->c)) || (isupper(l->c) && isupper(r->c))) return l->c > r->c;
       else return l->c<r->c;
       check = 1;
     }
